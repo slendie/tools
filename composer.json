@@ -1,0 +1,19 @@
+{
+    "name": "slendie/tools",
+    "description": "PHP Slendie Framework Tools - can be used independently and separately",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Slendie\\Tools\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Luciano Closs",
+            "email": "lcloss@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
