@@ -151,8 +151,20 @@ class Str
                 ],
         ];
 
-        // Ending with 'ES'
+        // Ending with 'IES'
         $word_group_1_exceptions = [
+            '*'       =>
+                [
+                    'singular'        => '*',
+                    'operations'    => [
+                        '-|3',
+                        '+|y',
+                    ],
+                ],
+        ];
+
+        // Ending with 'ES'
+        $word_group_2_exceptions = [
             '*'       =>
                 [
                     'singular'        => '*',
@@ -160,15 +172,23 @@ class Str
                         '-|2',
                     ],
                 ],
-    ];
+        ];
+
+
 
         // Check exceptions
         $finding = self::processWords( $term, $word_exceptions );
         if ( $finding !== false ) return $finding;
 
         // Ending with special characters - group 1
-        if ( self::endsWith( 'es', $test ) ) {
+        if ( self::endsWith( 'ies', $test ) ) {
             $finding = self::processWords( $term, $word_group_1_exceptions );
+            if ( $finding !== false ) return $finding;
+        }
+
+        // Ending with special characters - group 2
+        if ( self::endsWith( 'es', $test ) && !self::endsWith( 'ies', $test ) ) {
+            $finding = self::processWords( $term, $word_group_2_exceptions );
             if ( $finding !== false ) return $finding;
         }
 
