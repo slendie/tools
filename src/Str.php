@@ -82,6 +82,13 @@ class Str
                         '+|s',
                     ],
                 ],
+            'user'    => 
+                [
+                    'plural'        => 'users',
+                    'operations'    => [
+                        '+|s',
+                    ],
+                ],
             '*'       =>
                 [
                     'plural'        => '*',
