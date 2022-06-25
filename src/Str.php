@@ -202,4 +202,70 @@ class Str
         return substr( $term, 0, -1 );
     }
 
+    public static function randomStr($length = 8, $params = ['lower', 'capital', 'number', 'symbol', 'simsym']) 
+    {
+        $low_letters = "abcdefghijklmnopqrstuvwxyz";
+        $cap_letters = strtoupper($low_letters);
+        $symbols = "!?#$%&-_";
+        $simple_symbols = "-_";
+        $numbers = "1234567890";
+    
+        $source = '';
+        if ( in_array('lower', $params) ) {
+            $source .= $low_letters;
+        }
+        if ( in_array('capital', $params) ) {
+            $source .= $cap_letters;
+        }
+        if ( in_array('number', $params) ) {
+            $source .= $numbers;
+        }
+    
+        if ( in_array('symbol', $params) ) {
+            $source .= $symbols;
+    
+        } elseif ( in_array('simsymb', $params) ) {
+            $source .= $simple_symbols;
+        }
+    
+        $max = strlen($source);
+        $i = 0;
+        $word = "";
+    
+        while ($i < $length) {
+            $num = rand() % $max;
+            $char = substr($source, $num, 1);
+            $word .= $char;
+            $i++;
+        }
+    
+        return $word;
+    }    
+
+    public static function slugify($text, string $divider = '-')
+    {
+        // replace non letter or digits by divider
+        $text = preg_replace('~[^\pL\d]+~u', $divider, $text);
+
+        // transliterate
+        $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+
+        // remove unwanted characters
+        $text = preg_replace('~[^-\w]+~', '', $text);
+
+        // trim
+        $text = trim($text, $divider);
+
+        // remove duplicate divider
+        $text = preg_replace('~-+~', $divider, $text);
+
+        // lowercase
+        $text = strtolower($text);
+
+        if (empty($text)) {
+        return 'n-a';
+        }
+
+        return $text;
+    }    
 }
