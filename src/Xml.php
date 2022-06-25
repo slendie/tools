@@ -5,33 +5,35 @@ use \SimpleXmlElement;
 
 class Xml
 {
-    public static function arrayToXml( $array )
-    {
-        $xml = new SimpleXmlElement('<?xml version="1.0" encoding="utf-8"?><root></root>');
 
-        self::addArrayToXml( $array, $xml );
-
-        return $xml->asXML();
-    }
-
-    private static function addArrayToXml( $array, $xml )
-    {
-        if ( is_array( $array ) ) {
-            foreach( $array as $key => $value ) {
-                if ( is_int( $key ) ) {
-                    if ( $key == 0 ) {
-                        $node = $xml;
-                    } else {
-                        $parent = $xml->xpath('..')[0];
-                        $node = $parent->addChild( $xml->getName() );
-                    }
-                } else {
-                    $node = $xml->addChild( $key );
-                }
-                self::addArrayToXml( $value, $node );
-            }
-        } else {
-            $xml[0] = $array;
+    // Code to convert php array to xml document
+    // Define a function that converts array to xml.
+    public static function arrayToXml($array, $rootElement = null, $xml = null) {
+        $_xml = $xml;
+        
+        // If there is no Root Element then insert root
+        if ($_xml === null) {
+            $_xml = new SimpleXMLElement($rootElement !== null ? $rootElement : '<root/>');
         }
+        
+        // Visit all key value pair
+        foreach ($array as $k => $v) {
+            
+            // If there is nested array then
+            if (is_array($v)) {
+                
+                // Call function for nested array
+                arrayToXml($v, $k, $_xml->addChild($k));
+                }
+                
+            else {
+                
+                // Simply add child element.
+                $_xml->addChild($k, $v);
+            }
+        }
+        
+        return $_xml->asXML();
     }
+    
 }
