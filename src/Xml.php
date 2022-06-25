@@ -23,10 +23,8 @@ class Xml
             if (is_array($v)) {
                 
                 // Call function for nested array
-                arrayToXml($v, $k, $_xml->addChild($k));
-                }
-                
-            else {
+                self::arrayToXml($v, $k, $_xml->addChild($k));
+            } else {
                 
                 // Simply add child element.
                 $_xml->addChild($k, $v);
