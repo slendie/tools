@@ -1,6 +1,8 @@
 <?php
 namespace Slendie\Tools;
 
+use \SimpleXmlElement;
+
 class Xml
 {
     public static function arrayToXml( $array )
