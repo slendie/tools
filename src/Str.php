@@ -82,6 +82,13 @@ class Str
                         '+|s',
                     ],
                 ],
+            'user'    => 
+                [
+                    'plural'        => 'users',
+                    'operations'    => [
+                        '+|s',
+                    ],
+                ],
             '*'       =>
                 [
                     'plural'        => '*',
@@ -128,4 +135,137 @@ class Str
 
         return $term . "s";
     }
+
+    public static function singular( $term )
+    {
+        $test = strtolower( $term );
+
+        $word_exceptions = [
+            'children'     => 
+                [   
+                    'singular'        => 'child',
+                    'operations'    => [
+                        '-|3',
+                    ],
+                ],
+            'people'    => 
+                [
+                    'singular'        => 'person',
+                    'operations'    => [
+                        '-|4',
+                        '+|rson',
+                    ],
+                ],
+        ];
+
+        // Ending with 'IES'
+        $word_group_1_exceptions = [
+            '*'       =>
+                [
+                    'singular'        => '*',
+                    'operations'    => [
+                        '-|3',
+                        '+|y',
+                    ],
+                ],
+        ];
+
+        // Ending with 'ES'
+        $word_group_2_exceptions = [
+            '*'       =>
+                [
+                    'singular'        => '*',
+                    'operations'    => [
+                        '-|2',
+                    ],
+                ],
+        ];
+
+
+
+        // Check exceptions
+        $finding = self::processWords( $term, $word_exceptions );
+        if ( $finding !== false ) return $finding;
+
+        // Ending with special characters - group 1
+        if ( self::endsWith( 'ies', $test ) ) {
+            $finding = self::processWords( $term, $word_group_1_exceptions );
+            if ( $finding !== false ) return $finding;
+        }
+
+        // Ending with special characters - group 2
+        if ( self::endsWith( 'es', $test ) && !self::endsWith( 'ies', $test ) ) {
+            $finding = self::processWords( $term, $word_group_2_exceptions );
+            if ( $finding !== false ) return $finding;
+        }
+
+        return substr( $term, 0, -1 );
+    }
+
+    public static function randomStr($length = 8, $params = ['lower', 'capital', 'number', 'symbol', 'simsym']) 
+    {
+        $low_letters = "abcdefghijklmnopqrstuvwxyz";
+        $cap_letters = strtoupper($low_letters);
+        $symbols = "!?#$%&-_";
+        $simple_symbols = "-_";
+        $numbers = "1234567890";
+    
+        $source = '';
+        if ( in_array('lower', $params) ) {
+            $source .= $low_letters;
+        }
+        if ( in_array('capital', $params) ) {
+            $source .= $cap_letters;
+        }
+        if ( in_array('number', $params) ) {
+            $source .= $numbers;
+        }
+    
+        if ( in_array('symbol', $params) ) {
+            $source .= $symbols;
+    
+        } elseif ( in_array('simsymb', $params) ) {
+            $source .= $simple_symbols;
+        }
+    
+        $max = strlen($source);
+        $i = 0;
+        $word = "";
+    
+        while ($i < $length) {
+            $num = rand() % $max;
+            $char = substr($source, $num, 1);
+            $word .= $char;
+            $i++;
+        }
+    
+        return $word;
+    }    
+
+    public static function slugify($text, string $divider = '-')
+    {
+        // replace non letter or digits by divider
+        $text = preg_replace('~[^\pL\d]+~u', $divider, $text);
+
+        // transliterate
+        $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+
+        // remove unwanted characters
+        $text = preg_replace('~[^-\w]+~', '', $text);
+
+        // trim
+        $text = trim($text, $divider);
+
+        // remove duplicate divider
+        $text = preg_replace('~-+~', $divider, $text);
+
+        // lowercase
+        $text = strtolower($text);
+
+        if (empty($text)) {
+        return 'n-a';
+        }
+
+        return $text;
+    }    
 }

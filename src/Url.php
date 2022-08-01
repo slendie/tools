@@ -43,6 +43,16 @@ class Url
         return $matches[1];
     }
 
+    public function getBase()
+    {
+        $url = strtolower( $this->url );
+        $pattern = '/(?:http|https)?(?:\:\/\/)(.*)/';
+
+        preg_match( $pattern, $this->url, $matches );
+
+        return $matches[1];
+    }
+
     public static function isInternalLink( $domain_url, $page_url ) 
     {
         if ( Str::startsWith( 'http', $page_url ) ) {
@@ -99,4 +109,74 @@ class Url
         return false;
     }
 
+    public static function getCompleteUrl( $target_url, $source_url )
+    {
+        // Sanitize URL
+        $target_url = trim( $target_url );
+        $source_url = trim( $source_url );
+        
+        $pattern = '/^([\w]+:(\/\/)?)/';
+        if ( preg_match( $pattern, $target_url, $match ) ) {
+            return $target_url;
+        }
+        if ( Str::endsWith( '/', $source_url ) ) {
+            $source_url = substr( $source_url, 0, -1 );
+        }
+
+        $url = new Url();
+        $url->setUrl( $source_url );
+        $protocol = $url->getProtocol();
+        $source_url = $url->getBase();
+
+        if ( Str::startsWith( '/', $target_url ) && !startsWith( '//', $target_url ) ) {
+            $source_parts = explode('/', $source_url);
+
+            return $protocol . '://' . $source_parts[0] . $target_url;
+        }
+
+        if ( Str::startsWith( '//', $target_url ) ) {
+            return $protocol . ':' . $target_url;
+        }
+
+        $source_parts = array_filter( explode('/', $source_url) );
+
+        $last_segment = array_pop( $source_parts );
+        $final_url = '';
+        if ( count( $source_parts ) > 0 ) {
+            foreach( $source_parts as $source_part ) {
+                $final_url .= $source_part . '/';
+            }
+            $final_url .= $last_segment;
+            $pattern = '/[\.#\?]+/';
+            if ( !preg_match( $pattern, $last_segment ) ) {
+                // $final_url .= $last_segment . '/';
+                $final_url .= '/';
+            }
+        } else {
+            $final_url = $last_segment;
+            $pattern = '/[\.#\?]+/';
+            if ( !preg_match( $pattern, $last_segment ) ) {
+                $final_url .= '/';
+            }
+        }
+
+        /* target starting with '#' or '?' may concatenate with the base url. */
+        if ( Str::startsWith( '#', $target_url ) || Str::startsWith( '?', $target_url ) ) {
+            if ( Str::endsWith( '/', $final_url ) ) {
+                $final_url = substr( $final_url, 0, -1 );
+            }
+        } else {
+            /* Prevent '//' between base and target url */
+            if ( Str::endsWith( '/', $final_url ) && Str::startsWith( '/', $target_url ) ) {
+                $final_url = substr( $final_url, 0, -1);
+            } else {
+                /* Prevent missing '/' between base and target url */
+                if ( !Str::endsWith( '/', $final_url ) && !Str::startsWith( '/', $target_url ) ) {
+                    $final_url .= '/';
+                }
+            }
+        }
+
+        return $protocol . '://' . $final_url . $target_url;
+    }
 }
